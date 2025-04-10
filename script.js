@@ -158,6 +158,10 @@ skillsRows.forEach((row, index) => {
     if (index === 0 || index === 2) { // Rows 1 and 3
         skillPositions[index] = -totalWidth; // Start at the rightmost position
     }
+    row.addEventListener('mouseenter', () => speeds[index] = 0);
+    row.addEventListener('mouseleave', () => speeds[index] = index === 1 ? 0.7 : -0.5 - index * 0.1);
+
+
 });
 
 function updateSkillsScroll() {
