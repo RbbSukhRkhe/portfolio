@@ -75,6 +75,10 @@ const beforeWidth = ctx.measureText(beforeText).width;
 const leftTextX = canvas.width / 2 - fullTextWidth / 2;
 const threshold = leftTextX + beforeWidth;
 
+// Calculate scale factor based on screen width
+const baseScale = 0.03;
+const scaleFactor = Math.min(window.innerWidth / 1024, 1) * baseScale; // Scale down for screens < 1024px
+
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 let particleIndex = 0;
 for (let i = 0; i < particleCount * 100 && particleIndex < particleCount; i++) {
@@ -82,8 +86,8 @@ for (let i = 0; i < particleCount * 100 && particleIndex < particleCount; i++) {
     const y = Math.random() * canvas.height;
     const pixelIndex = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
     if (imageData.data[pixelIndex + 3] > 128) {
-        positions[particleIndex * 3] = (x - canvas.width / 2) * 0.03;
-        positions[particleIndex * 3 + 1] = (-y + canvas.height / 2) * 0.03;
+        positions[particleIndex * 3] = (x - canvas.width / 2) * scaleFactor;
+        positions[particleIndex * 3 + 1] = (-y + canvas.height / 2) * scaleFactor;
         positions[particleIndex * 3 + 2] = 0;
 
         originalPositions[particleIndex * 3] = positions[particleIndex * 3];
@@ -122,14 +126,29 @@ scene.add(particleSystem);
 
 camera.position.z = 20;
 
-// Mouse interaction for main particles
+// Mouse and touch interaction for main particles
 const mouse = new THREE.Vector2(0, 0);
+
+// Mouse move handler
 document.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 });
 
-// ... (Keep the rest of your script.js unchanged until the skills section part)
+// Touch move handler to mimic hover
+document.addEventListener('touchmove', (event) => {
+    event.preventDefault(); // Prevent scrolling while touching
+    const touch = event.touches[0];
+    mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+}, { passive: false });
+
+// Touch start handler to initialize interaction
+document.addEventListener('touchstart', (event) => {
+    const touch = event.touches[0];
+    mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+});
 
 // Skills section horizontal scrolling
 const skillsRows = [
@@ -139,48 +158,64 @@ const skillsRows = [
 ];
 
 // Speeds for each row (positive for left-to-right, negative for right-to-left)
-let speeds = [-0.5, 0.7, -0.6]; // Changed row1 and row3 to negative for right-to-left
-let skillPositions = [0, 0, 0]; // Initial positions for each row
+let speeds = [-0.5, 0.7, -0.6];
+let skillPositions = [0, 0, 0];
 
 // Initialize the starting positions for seamless scrolling
-skillsRows.forEach((row, index) => {
-    const cardWidth = row.children[0].offsetWidth + 30; // Width of one card + gap
-    const totalOriginalCards = row.children.length; // Original number of cards
-    const totalWidth = cardWidth * totalOriginalCards; // Width of original content
+function initializeSkillsRows() {
+    skillsRows.forEach((row, index) => {
+        const cardWidth = row.children[0].offsetWidth + 30;
+        const totalOriginalCards = row.children.length / 2;
+        const totalWidth = cardWidth * totalOriginalCards;
 
-    // Ensure enough cards are present to cover the screen without gaps
-    const visibleCards = Math.ceil(window.innerWidth / cardWidth) + 2; // Number of cards needed to fill screen + buffer
-    while (row.children.length < visibleCards * 2) { // Double for seamless looping
-        row.innerHTML += row.innerHTML; // Duplicate content dynamically
-    }
+        // Clear existing content to avoid duplication on resize
+        row.innerHTML = '';
+        // Original cards
+        const cards = index === 0 ? ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js'] :
+                      index === 1 ? ['Python', 'TensorFlow', 'Three.js', 'Git', 'MongoDB'] :
+                                    ['UI/UX', 'Figma', 'Photoshop', 'Creative Coding', 'Problem Solving'];
+        cards.forEach(card => {
+            const div = document.createElement('div');
+            div.className = 'skill-card';
+            div.textContent = card;
+            row.appendChild(div);
+        });
 
-    // Set initial position for rows 1 and 3 to start from the rightmost element
-    if (index === 0 || index === 2) { // Rows 1 and 3
-        skillPositions[index] = -totalWidth; // Start at the rightmost position
-    }
-    row.addEventListener('mouseenter', () => speeds[index] = 0);
-    row.addEventListener('mouseleave', () => speeds[index] = index === 1 ? 0.7 : -0.5 - index * 0.1);
+        // Calculate number of cards needed
+        const visibleCards = Math.ceil(window.innerWidth / cardWidth) + 2;
+        while (row.children.length < visibleCards * 2) {
+            row.innerHTML += row.innerHTML;
+        }
 
+        // Set initial position for rows 1 and 3
+        if (index === 0 || index === 2) {
+            skillPositions[index] = -totalWidth;
+        } else {
+            skillPositions[index] = 0;
+        }
 
-});
+        row.addEventListener('mouseenter', () => speeds[index] = 0);
+        row.addEventListener('mouseleave', () => speeds[index] = index === 1 ? 0.7 : -0.5 - index * 0.1);
+    });
+}
+
+initializeSkillsRows();
 
 function updateSkillsScroll() {
     skillsRows.forEach((row, index) => {
-        const cardWidth = row.children[0].offsetWidth + 30; // Width of one card + gap
-        const totalOriginalCards = row.children.length / 2; // Divide by 2 because we doubled the content
-        const totalWidth = cardWidth * totalOriginalCards; // Width of original content
+        const cardWidth = row.children[0].offsetWidth + 30;
+        const totalOriginalCards = row.children.length / 2;
+        const totalWidth = cardWidth * totalOriginalCards;
 
-        // Update position
         skillPositions[index] += speeds[index];
 
-        // Seamless reset logic
-        if (speeds[index] > 0) { // Left-to-right scrolling (row 2)
+        if (speeds[index] > 0) {
             if (skillPositions[index] >= 0) {
-                skillPositions[index] -= totalWidth; // Reset to the left
+                skillPositions[index] -= totalWidth;
             }
-        } else { // Right-to-left scrolling (rows 1 and 3)
+        } else {
             if (skillPositions[index] <= -totalWidth) {
-                skillPositions[index] += totalWidth; // Reset to the right
+                skillPositions[index] += totalWidth;
             }
         }
 
@@ -199,7 +234,6 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// ... (Keep the rest of your script.js unchanged, including the animate function)
 // Animation loop with the original jumpy effect
 function animate() {
     requestAnimationFrame(animate);
@@ -225,8 +259,8 @@ function animate() {
         const x = positionAttribute.array[i3];
         const y = positionAttribute.array[i3 + 1];
 
-        const dx = x - (mouse.x * 20);
-        const dy = y - (mouse.y * 20);
+        const dx = x - (mouse.x * 20 * scaleFactor / baseScale); // Adjust mouse influence based on scale
+        const dy = y - (mouse.y * 20 * scaleFactor / baseScale);
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < 5) {
@@ -256,8 +290,12 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     document.getElementById('subtext').style.top = '55%';
     document.getElementById('subtext').style.left = '50%';
+
+    // Reinitialize skills rows for responsive scrolling
+    initializeSkillsRows();
 });
 
 window.addEventListener('scroll', () => {
