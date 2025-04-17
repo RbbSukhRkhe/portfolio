@@ -126,6 +126,33 @@ body {
     60% { transform: translate(-50%, -5px); }
 }
 
+/* ===== DIALOG OVERLAY ===== */
+#dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+#dialog-text {
+    font-family: 'Caveat', cursive;
+    font-size: 2em;
+    color: #fff;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+@media (max-width: 768px) {
+    #dialog-text {
+        font-size: 1.5em;
+    }
+}
+
 /* ===== SECTIONS ===== */
 #summary, #skills, #projects, #blogs, #footer {
     position: relative;

@@ -4,7 +4,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-introSection.appendChild(renderer.domElement); // Append to intro-section
+introSection.appendChild(renderer.domElement);
 
 // Background particle system
 const bgParticleCount = 2000;
@@ -124,6 +124,45 @@ const mouse = new THREE.Vector2(0, 0);
 document.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
+// Dialog overlay for star click
+const starLink = document.getElementById('star-link');
+const dialogOverlay = document.getElementById('dialog-overlay');
+const dialogText = document.getElementById('dialog-text');
+const dialogs = [
+    "Hey, you found a secret.",
+    "Sukhan has left this for you.",
+    "Let's see if you can find it."
+];
+
+starLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    dialogOverlay.style.display = 'flex';
+    let index = 0;
+
+    function showNextDialog() {
+        if (index >= dialogs.length) {
+            dialogText.style.opacity = '0';
+            setTimeout(() => {
+                dialogOverlay.style.display = 'none';
+                window.location.href = 'shooter.html';
+            }, 500);
+            return;
+        }
+
+        dialogText.textContent = dialogs[index];
+        dialogText.style.opacity = '1';
+        setTimeout(() => {
+            dialogText.style.opacity = '0';
+            setTimeout(() => {
+                index++;
+                showNextDialog();
+            }, 500);
+        }, 2000);
+    }
+
+    showNextDialog();
 });
 
 // Skills section horizontal scrolling
