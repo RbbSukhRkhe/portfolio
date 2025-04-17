@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sand Reveal Enhanced</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; font-family: 'Roboto', sans-serif; }
+    #hiddenMessage {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(1rem, 2vw, 2rem);
+      color: #99CCFF;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 0;
+      pointer-events: none;
+    }
+    #backButton {
+      position: absolute;
+      top: calc(50% + 3rem);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Roboto', sans-serif;
+      font-size: clamp(0.8rem, 2vw, 1.2rem);
+      color: #99CCFF;
+      background: transparent;
+      border: 1px solid #99CCFF;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 2;
+      pointer-events: auto;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    #backButton:hover {
+      color: #CCE4FF;
+      border-color: #CCE4FF;
+    }
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  </style>
+</head>
+<body>
+  <div id="hiddenMessage">printf("f{Look up at the stars and not down at your feet}"); // ✨👀</div>
+  <button id="backButton">← Go Back</button>
+  <canvas id="sandCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('sandCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Pale blue palette
+    let colors = ['#C2E7FF','#A0DFFC','#8BD4FF','#B3E0FF','#99CCFF'];
+    let grains = [];
+
+    function initGrains() {
+      grains = [];
+      const count = Math.floor((canvas.width * canvas.height) / 100);
+      for (let i = 0; i < count; i++) {
+        grains.push({ 
+          origX: Math.random() * canvas.width,
+          origY: Math.random() * canvas.height,
+          x: 0, y: 0, vx: 0, vy: 0,
+          size: 2 + Math.random()*3,
+          colorIdx: Math.floor(Math.random() * colors.length)
+        });
+        grains[i].x = grains[i].origX;
+        grains[i].y = grains[i].origY;
+      }
+    }
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initGrains();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function animate(time = 0) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.globalAlpha = 0.7;
+      const driftAmp = 10;
+      grains.forEach((g,i) => {
+        const dx0 = Math.sin((time + i*50)/2000)*driftAmp;
+        const dy0 = Math.cos((time + i*60)/2200)*driftAmp*0.3;
+        const tx = g.origX + dx0, ty = g.origY + dy0;
+        const dx = tx - g.x, dy = ty - g.y;
+        g.vx = g.vx*0.92 + dx*0.004;
+        g.vy = g.vy*0.92 + dy*0.004;
+        g.x += g.vx; g.y += g.vy;
+        ctx.fillStyle = colors[g.colorIdx];
+        ctx.fillRect(g.x, g.y, g.size, g.size);
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    function pushAt(mx, my) {
+      grains.forEach(g => {
+        const dx = g.x - mx, dy = g.y - my;
+        const dist = Math.hypot(dx,dy);
+        if (dist < 60) {
+          const ang = Math.atan2(dy,dx);
+          g.vx += Math.cos(ang)*6;
+          g.vy += Math.sin(ang)*6;
+        }
+      });
+    }
+    canvas.addEventListener('mousemove', e=>pushAt(e.clientX,e.clientY));
+    canvas.addEventListener('touchmove', e=>{e.preventDefault(); const t=e.touches[0]; pushAt(t.clientX,t.clientY);},{passive:false});
+    document.getElementById('backButton').addEventListener('click',()=>window.location.href='index.html');
+  </script>
+</body>
+<footer>
+    <div id="wink-me" title="Blink twice if you wanna hire me 😉"></div>
+  </footer>
+</html>

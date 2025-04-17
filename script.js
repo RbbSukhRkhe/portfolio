@@ -1,10 +1,10 @@
-// Scene setup
+const introSection = document.getElementById('intro-section');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
+introSection.appendChild(renderer.domElement); // Append to intro-section
 
 // Background particle system
 const bgParticleCount = 2000;
@@ -54,7 +54,6 @@ const positions = new Float32Array(particleCount * 3);
 const mainColors = new Float32Array(particleCount * 3);
 const originalPositions = new Float32Array(particleCount * 3);
 
-// Create canvas for text and center the text using textAlign and textBaseline
 const canvas = document.createElement('canvas');
 canvas.width = 1024;
 canvas.height = 128;
@@ -64,20 +63,14 @@ ctx.fillStyle = 'white';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 
-// Draw the full text centered
 const fullText = "Hi, I am Sukhan!";
 ctx.fillText(fullText, canvas.width / 2, canvas.height / 2);
 
-// Measure the text to determine where "Sukhan!" starts
 const beforeText = "Hi, I am ";
 const fullTextWidth = ctx.measureText(fullText).width;
 const beforeWidth = ctx.measureText(beforeText).width;
 const leftTextX = canvas.width / 2 - fullTextWidth / 2;
 const threshold = leftTextX + beforeWidth;
-
-// Calculate scale factor based on screen width
-const baseScale = 0.03;
-const scaleFactor = Math.min(window.innerWidth / 1024, 1) * baseScale; // Scale down for screens < 1024px
 
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 let particleIndex = 0;
@@ -86,8 +79,8 @@ for (let i = 0; i < particleCount * 100 && particleIndex < particleCount; i++) {
     const y = Math.random() * canvas.height;
     const pixelIndex = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
     if (imageData.data[pixelIndex + 3] > 128) {
-        positions[particleIndex * 3] = (x - canvas.width / 2) * scaleFactor;
-        positions[particleIndex * 3 + 1] = (-y + canvas.height / 2) * scaleFactor;
+        positions[particleIndex * 3] = (x - canvas.width / 2) * 0.03;
+        positions[particleIndex * 3 + 1] = (-y + canvas.height / 2) * 0.03;
         positions[particleIndex * 3 + 2] = 0;
 
         originalPositions[particleIndex * 3] = positions[particleIndex * 3];
@@ -126,28 +119,11 @@ scene.add(particleSystem);
 
 camera.position.z = 20;
 
-// Mouse and touch interaction for main particles
+// Mouse interaction for main particles
 const mouse = new THREE.Vector2(0, 0);
-
-// Mouse move handler
 document.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-});
-
-// Touch move handler to mimic hover
-document.addEventListener('touchmove', (event) => {
-    event.preventDefault(); // Prevent scrolling while touching
-    const touch = event.touches[0];
-    mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-}, { passive: false });
-
-// Touch start handler to initialize interaction
-document.addEventListener('touchstart', (event) => {
-    const touch = event.touches[0];
-    mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
 });
 
 // Skills section horizontal scrolling
@@ -157,49 +133,23 @@ const skillsRows = [
     document.getElementById('row3')
 ];
 
-// Speeds for each row (positive for left-to-right, negative for right-to-left)
 let speeds = [-0.5, 0.7, -0.6];
 let skillPositions = [0, 0, 0];
 
-// Initialize the starting positions for seamless scrolling
-function initializeSkillsRows() {
-    skillsRows.forEach((row, index) => {
-        const cardWidth = row.children[0].offsetWidth + 30;
-        const totalOriginalCards = row.children.length / 2;
-        const totalWidth = cardWidth * totalOriginalCards;
+skillsRows.forEach((row, index) => {
+    const cardWidth = row.children[0].offsetWidth + 30;
+    const totalOriginalCards = row.children.length;
+    const totalWidth = cardWidth * totalOriginalCards;
 
-        // Clear existing content to avoid duplication on resize
-        row.innerHTML = '';
-        // Original cards
-        const cards = index === 0 ? ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js'] :
-                      index === 1 ? ['Python', 'TensorFlow', 'Three.js', 'Git', 'MongoDB'] :
-                                    ['UI/UX', 'Figma', 'Photoshop', 'Creative Coding', 'Problem Solving'];
-        cards.forEach(card => {
-            const div = document.createElement('div');
-            div.className = 'skill-card';
-            div.textContent = card;
-            row.appendChild(div);
-        });
+    const visibleCards = Math.ceil(window.innerWidth / cardWidth) + 2;
+    while (row.children.length < visibleCards * 2) {
+        row.innerHTML += row.innerHTML;
+    }
 
-        // Calculate number of cards needed
-        const visibleCards = Math.ceil(window.innerWidth / cardWidth) + 2;
-        while (row.children.length < visibleCards * 2) {
-            row.innerHTML += row.innerHTML;
-        }
-
-        // Set initial position for rows 1 and 3
-        if (index === 0 || index === 2) {
-            skillPositions[index] = -totalWidth;
-        } else {
-            skillPositions[index] = 0;
-        }
-
-        row.addEventListener('mouseenter', () => speeds[index] = 0);
-        row.addEventListener('mouseleave', () => speeds[index] = index === 1 ? 0.7 : -0.5 - index * 0.1);
-    });
-}
-
-initializeSkillsRows();
+    if (index === 0 || index === 2) {
+        skillPositions[index] = -totalWidth;
+    }
+});
 
 function updateSkillsScroll() {
     skillsRows.forEach((row, index) => {
@@ -223,22 +173,10 @@ function updateSkillsScroll() {
     });
 }
 
-// Add skills to scroll event listener
-const skillsSection = document.getElementById('skills');
-window.addEventListener('scroll', () => {
-    const skillsTop = skillsSection.getBoundingClientRect().top;
-    if (skillsTop < window.innerHeight * 0.8) {
-        skillsSection.classList.add('visible');
-    } else {
-        skillsSection.classList.remove('visible');
-    }
-});
-
-// Animation loop with the original jumpy effect
+// Animation loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Update background particles
     const bgPositionAttribute = bgParticles.getAttribute('position');
     for (let i = 0; i < bgParticleCount; i++) {
         const i3 = i * 3;
@@ -252,15 +190,14 @@ function animate() {
     }
     bgPositionAttribute.needsUpdate = true;
 
-    // Update main particles
     const positionAttribute = particles.getAttribute('position');
     for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
         const x = positionAttribute.array[i3];
         const y = positionAttribute.array[i3 + 1];
 
-        const dx = x - (mouse.x * 20 * scaleFactor / baseScale); // Adjust mouse influence based on scale
-        const dy = y - (mouse.y * 20 * scaleFactor / baseScale);
+        const dx = x - (mouse.x * 20);
+        const dy = y - (mouse.y * 20);
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < 5) {
@@ -275,7 +212,6 @@ function animate() {
     }
     positionAttribute.needsUpdate = true;
 
-    // Update skills scrolling
     updateSkillsScroll();
 
     renderer.render(scene, camera);
@@ -283,35 +219,28 @@ function animate() {
 
 animate();
 
-// Handle window resize and scroll events
-const summary = document.getElementById('summary');
-const projects = document.getElementById('projects');
+// Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    document.getElementById('subtext').style.top = '55%';
-    document.getElementById('subtext').style.left = '50%';
-
-    // Reinitialize skills rows for responsive scrolling
-    initializeSkillsRows();
 });
 
-window.addEventListener('scroll', () => {
-    // Summary section animation
-    const summaryTop = summary.getBoundingClientRect().top;
-    if (summaryTop < window.innerHeight * 0.8) {
-        summary.classList.add('visible');
-    } else {
-        summary.classList.remove('visible');
-    }
+// Scroll animations for sections
+const summary = document.getElementById('summary');
+const skills = document.getElementById('skills');
+const projects = document.getElementById('projects');
+const blogs = document.getElementById('blogs');
+const footer = document.getElementById('footer');
 
-    // Projects section animation
-    const projectsTop = projects.getBoundingClientRect().top;
-    if (projectsTop < window.innerHeight * 0.8) {
-        projects.classList.add('visible');
-    } else {
-        projects.classList.remove('visible');
-    }
+window.addEventListener('scroll', () => {
+    const sections = [summary, skills, projects, blogs, footer];
+    sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.8) {
+            section.classList.add('visible');
+        } else {
+            section.classList.remove('visible');
+        }
+    });
 });

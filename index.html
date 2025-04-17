@@ -2,27 +2,40 @@
 <html>
 <head>
     <title>Sukhan's Portfolio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <!-- SOCIAL ICONS: no text, just the images -->
-    <div id="social-links">
-      <a href="https://github.com/RbbSukhRkhe" target="_blank">
-        <img src="github-logo.svg" alt="GitHub">
-      </a>
-      <a href="https://www.linkedin.com/in/sukhandhillon/" target="_blank">
-        <img src="linkedin-logo.svg" alt="LinkedIn">
-      </a>
-      <a href="https://www.instagram.com/rbbsukhrkhe" target="_blank">
-        <img src="instagram-logo.svg" alt="Instagram">
-      </a>
-    </div>
 
-    <!-- SUBTEXT & SCROLL PROMPT -->
-    <div id="subtext">Sukhanpreet Singh Dhillon, to be exact but meh!</div>
-    <div id="scroll-down">Scroll Down ↓</div>
+<body>
+    <!-- NAVIGATION BAR -->
+    <nav id="navbar">
+        <a href="#summary">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#blogs">Blogs</a>
+    </nav>
+    
+    <!-- INTRO SECTION WITH PARTICLES -->
+    <div id="intro-section">
+        <!-- SOCIAL ICONS -->
+        <div id="social-links">
+            <a href="https://github.com/RbbSukhRkhe" target="_blank">
+                <img src="github-logo.svg" alt="GitHub">
+            </a>
+            <a href="https://www.linkedin.com/in/sukhandhillon/" target="_blank">
+                <img src="linkedin-logo.svg" alt="LinkedIn">
+            </a>
+            <a href="https://www.instagram.com/rbbsukhrkhe" target="_blank">
+                <img src="instagram-logo.svg" alt="Instagram">
+            </a>
+        </div>
+
+        <!-- SUBTEXT & SCROLL PROMPT -->
+        <div id="subtext">
+            Sukhanpreet Singh Dhillon, to be exact but meh! <a href="shooter.html" style="color: inherit; text-decoration: none; opacity: 0.05;" title="✨">✨</a>
+        </div>
+        <div id="scroll-down">Scroll Down ↓</div>
+    </div>
 
     <!-- SUMMARY SECTION -->
     <div id="summary">
@@ -98,7 +111,44 @@
         </div>
     </div>
 
-    <!-- THREE.JS SCRIPT -->
+    <!-- BLOGS SECTION -->
+    <div id="blogs">
+        <h2>My Blogs</h2>
+        <div id="blog-content">Loading blog...</div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+        <div id="wink-me" title="Blink twice if you wanna hire me 😉">Blink twice if you wanna hire me 😉</div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const fallbackContent = `
+            # Welcome to My Blog
+            Oops, looks like the blog content couldn't load. I'm probably tinkering with something cool—check back soon!
+        `;
+        if (window.location.protocol === 'file:') {
+            console.warn('Fetch not supported on file://. Using fallback content.');
+            document.getElementById('blog-content').innerHTML = marked.parse(fallbackContent);
+        } else {
+            fetch('blog.md')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Blog not found');
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    document.getElementById('blog-content').innerHTML = marked.parse(text);
+                })
+                .catch(error => {
+                    console.error('Error loading blog:', error);
+                    document.getElementById('blog-content').innerHTML = marked.parse(fallbackContent);
+                });
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="script.js"></script>
 </body>
