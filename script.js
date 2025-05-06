@@ -174,6 +174,7 @@ const skillsRows = [
 
 let speeds = [-0.5, 0.7, -0.6];
 let skillPositions = [0, 0, 0];
+let isRowPaused = [false, false, false]; // Track pause state for each row
 
 skillsRows.forEach((row, index) => {
     const cardWidth = row.children[0].offsetWidth + 30;
@@ -188,10 +189,24 @@ skillsRows.forEach((row, index) => {
     if (index === 0 || index === 2) {
         skillPositions[index] = -totalWidth;
     }
+
+    // Add hover event listeners to all skill cards in the row
+    const skillCards = row.getElementsByClassName('skill-card');
+    Array.from(skillCards).forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            isRowPaused[index] = true;
+        });
+        card.addEventListener('mouseleave', () => {
+            isRowPaused[index] = false;
+        });
+    });
 });
 
 function updateSkillsScroll() {
     skillsRows.forEach((row, index) => {
+        // Skip scrolling if row is paused
+        if (isRowPaused[index]) return;
+
         const cardWidth = row.children[0].offsetWidth + 30;
         const totalOriginalCards = row.children.length / 2;
         const totalWidth = cardWidth * totalOriginalCards;
