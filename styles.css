@@ -359,3 +359,138 @@ body {
         padding: 20px;
     }
 }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .skills-container {
+        padding: 0 10px;
+    }
+    
+    .skill-card {
+        padding: 12px 30px;
+        font-size: 1.1em;
+    }
+    
+    #summary p {
+        max-width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    #navbar {
+        padding: 10px;
+        gap: 15px;
+    }
+    
+    #navbar a {
+        font-size: 0.9em;
+    }
+    
+    #intro-section {
+        height: 90vh;
+    }
+    
+    #summary, #skills, #projects, #blogs {
+        padding: 30px 20px;
+    }
+    
+    #summary h2, #skills h2, #projects h2, #blogs h2 {
+        font-size: 2em;
+    }
+    
+    #social-links {
+        gap: 20px;
+    }
+    
+    #social-links img {
+        width: 30px;
+        height: 30px;
+    }
+    
+    #subtext {
+        font-size: 1.2em;
+        width: 90%;
+    }
+    
+    .skill-card {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+    
+    .project-card {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    #blog-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    #navbar {
+        padding: 8px;
+        gap: 10px;
+    }
+    
+    #navbar a {
+        font-size: 0.8em;
+    }
+    
+    #intro-section {
+        height: 85vh;
+    }
+    
+    #summary h2, #skills h2, #projects h2, #blogs h2 {
+        font-size: 1.8em;
+    }
+    
+    #summary p {
+        font-size: 1em;
+        max-width: 95%;
+    }
+    
+    #social-links {
+        gap: 15px;
+    }
+    
+    #social-links img {
+        width: 25px;
+        height: 25px;
+    }
+    
+    #subtext {
+        font-size: 1em;
+        width: 95%;
+    }
+    
+    .skill-card {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    #scroll-down {
+        font-size: 0.9em;
+    }
+    
+    #dialog-text {
+        font-size: 1.2em;
+        padding: 0 15px;
+    }
+}
+
+/* Add viewport meta tag to HTML */
+@media (max-width: 320px) {
+    #navbar a {
+        font-size: 0.7em;
+    }
+    
+    #summary h2, #skills h2, #projects h2, #blogs h2 {
+        font-size: 1.5em;
+    }
+    
+    .skill-card {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
